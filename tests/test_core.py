@@ -29,6 +29,12 @@ class ConfigTests(unittest.TestCase):
             path.write_text(json.dumps({"processes": [{"name": "x", "command": "echo unsafe"}]}), encoding="utf-8")
             with self.assertRaises(ConfigError): load_config(path)
 
+    def test_rejects_name_that_could_escape_log_directory(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "x.json"
+            path.write_text(json.dumps({"processes": [{"name": "../escape", "command": ["echo", "x"]}]}), encoding="utf-8")
+            with self.assertRaises(ConfigError): load_config(path)
+
 
 class LauncherTests(unittest.TestCase):
     def test_starts_and_waits_for_real_process(self):
