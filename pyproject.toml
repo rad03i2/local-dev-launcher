@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "local-dev-launcher"
+version = "1.0.0"
+description = "A small, dependency-free process launcher for repeatable local development stacks."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Radwan Abdulhadi Ahmed"}]
+keywords = ["development", "process", "launcher", "devtools"]
+classifiers = ["Programming Language :: Python :: 3", "License :: OSI Approved :: MIT License", "Operating System :: OS Independent"]
+
+[project.scripts]
+dev-launch = "local_dev_launcher.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

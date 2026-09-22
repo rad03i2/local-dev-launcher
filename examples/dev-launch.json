@@ -1,0 +1,11 @@
+{
+  "processes": [
+    {
+      "name": "static-web",
+      "command": ["python", "-m", "http.server", "8000"],
+      "cwd": ".",
+      "ready_after": 0.5,
+      "env": {"APP_ENV": "development"}
+    }
+  ]
+}
