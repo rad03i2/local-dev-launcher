@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import json
 import os
 from pathlib import Path
+import re
 import signal
 import subprocess
 import time
@@ -13,6 +14,9 @@ from typing import IO, Any
 
 class ConfigError(ValueError):
     """Raised when launcher configuration is invalid."""
+
+
+_SAFE_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
 
 
 @dataclass(frozen=True)
@@ -41,8 +45,8 @@ def load_config(path: str | Path) -> list[ProcessSpec]:
             raise ConfigError(f"processes[{i}] must be an object")
         name = item.get("name")
         command = item.get("command")
-        if not isinstance(name, str) or not name.strip() or name in seen:
-            raise ConfigError(f"processes[{i}].name must be unique and non-empty")
+        if not isinstance(name, str) or not _SAFE_NAME.fullmatch(name) or name in seen:
+            raise ConfigError(f"processes[{i}].name must be unique and use only letters, digits, dot, underscore or hyphen (max 64 chars)")
         if not isinstance(command, list) or not command or not all(isinstance(x, str) and x for x in command):
             raise ConfigError(f"processes[{i}].command must be a non-empty string array")
         cwd_raw = item.get("cwd", ".")
@@ -60,7 +64,7 @@ def load_config(path: str | Path) -> list[ProcessSpec]:
         optional = item.get("optional", False)
         if not isinstance(optional, bool):
             raise ConfigError(f"processes[{i}].optional must be boolean")
-        specs.append(ProcessSpec(name.strip(), tuple(command), cwd, dict(env_raw), float(ready_after), optional))
+        specs.append(ProcessSpec(name, tuple(command), cwd, dict(env_raw), float(ready_after), optional))
         seen.add(name)
     return specs
 
